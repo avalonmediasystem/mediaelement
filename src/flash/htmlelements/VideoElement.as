@@ -228,10 +228,8 @@ package htmlelements
 
 
 		private function onMetaDataHandler(info:Object):void {
-			// Only set the duration when we first load the video
-			if (_duration == 0) {
-				_duration = info.duration;
-			}
+			// Sets the duration everytime so it gets updated when switching video source
+			_duration = info.duration;
 			_framerate = info.framerate;
 			_videoWidth = info.width;
 			_videoHeight = info.height;
