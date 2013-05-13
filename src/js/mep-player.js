@@ -683,6 +683,15 @@
 					}
 				}, false);
 
+        // keep the player in sync with the HTML5 video element when switching streams
+				t.media.addEventListener('durationchange', function(e) {
+					if (t.updateDuration) {
+						t.updateDuration();
+					}
+					if (t.updateCurrent) {
+						t.updateCurrent();
+					}
+				}, false);
 
 				// webkit has trouble doing this without a delay
 				setTimeout(function () {
@@ -895,6 +904,8 @@
 
 			posterImg.attr('src', url);
 			posterDiv.css({'background-image' : 'url(' + url + ')'});
+      // HTML5 player gets the poster from here so we need to update it when changing the poster
+      this.$media.attr('poster', url);
 		},
 
 		buildoverlays: function(player, controls, layers, media) {

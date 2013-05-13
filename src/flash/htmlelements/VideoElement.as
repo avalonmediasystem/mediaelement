@@ -261,6 +261,7 @@ package htmlelements
 			if (_isConnected && _stream) {
 				// stop and restart
 				_stream.pause();
+				_video.clear();
 			}
 
 			_currentUrl = url;
