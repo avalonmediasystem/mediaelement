@@ -199,6 +199,10 @@ package
 			
 
 			// create media element
+			// make audio rtmp use the video element
+			if (!_isVideo && _mediaUrl.indexOf("rtmp") == 0)
+				_isVideo = true;
+
 			if (_isVideo) {
 				
 				if (_mediaUrl.indexOf("youtube.com") > -1 || _mediaUrl.indexOf("youtu.be") > -1) {
