@@ -162,7 +162,10 @@ package htmlelements
 
         case "NetStream.Buffer.Empty":
           _bufferEmpty = true;
-          _isEnded ? sendEvent(HtmlMediaEvent.ENDED) : null;
+          if (_isEnded) { 
+            sendEvent(HtmlMediaEvent.ENDED);
+            _timer.stop();
+          }
           break;
 
         case "NetStream.Buffer.Full":
@@ -208,8 +211,9 @@ package htmlelements
         case "NetStream.Play.Stop":
           _isEnded = true;
           _isPaused = false;
-          _timer.stop();
-          _bufferEmpty ? sendEvent(HtmlMediaEvent.ENDED) : null;
+          // The video often continues to play until the buffer is empty
+          //_timer.stop(); 
+          //_bufferEmpty ? sendEvent(HtmlMediaEvent.ENDED) : null;
           break;
 
       }

@@ -976,6 +976,7 @@
 			}, false);
 
 			media.addEventListener('pause',function() {
+				loading.hide(); //fix for Red5 end of stream
 				if (!mejs.MediaFeatures.isiPhone) {
 					bigPlay.show();
 				}
