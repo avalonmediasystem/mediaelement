@@ -572,12 +572,18 @@
 
 						// show/hide controls
 						t.container
-							.bind('mouseenter mouseover', function () {
+							.bind('mouseover', function () {
 								if (t.controlsEnabled) {
-									if (!t.options.alwaysShowControls) {
-										t.killControlsTimer('enter');
-										t.showControls();
-										t.startControlsTimer(2500);
+									if (!t.options.alwaysShowControls ) {								
+                    					// do not hide controls if they're being hovered over
+                    					if (t.controls.is(':hover')) {
+										  t.killControlsTimer('enter');
+										  t.showControls();
+                    					} else {
+										  t.killControlsTimer('enter');
+										  t.showControls();
+										  t.startControlsTimer(2500);		
+                    					}
 									}
 								}
 							})
@@ -587,7 +593,8 @@
 										t.showControls();
 									}
 									//t.killControlsTimer('move');
-									if (!t.options.alwaysShowControls) {
+                  					// do not hide controls if they're being hovered over
+									if (!t.options.alwaysShowControls && !t.controls.is(':hover')) {
 										t.startControlsTimer(2500);
 									}
 								}
@@ -596,6 +603,15 @@
 								if (t.controlsEnabled) {
 									if (!t.media.paused && !t.options.alwaysShowControls) {
 										t.startControlsTimer(1000);
+									}
+								}
+							});
+
+            t.controls
+							.bind('mouseleave', function () {
+								if (t.controlsEnabled) {
+									if (!t.media.paused && !t.options.alwaysShowControls) {
+										t.startControlsTimer(1000);								
 									}
 								}
 							});
