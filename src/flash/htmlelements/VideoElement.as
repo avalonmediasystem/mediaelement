@@ -185,21 +185,16 @@ package htmlelements
 
         // STREAM
         case "NetStream.Play.Start":
-
-
-          if (!_isPreloading) {
+          if (!_isPreloading && !_isPaused) {
             sendEvent(HtmlMediaEvent.CANPLAY);
-            _isPaused = false;
-
             sendEvent(HtmlMediaEvent.PLAY);
             sendEvent(HtmlMediaEvent.PLAYING);
+            _timer.start();
           }
-
-          _timer.start();
-
           break;
 
-        case "NetStream.Seek.Notify":
+        case "NetStream.Seek.Complete":
+          sendEvent(HtmlMediaEvent.PROGRESS);
           sendEvent(HtmlMediaEvent.SEEKED);
           break;
 
@@ -374,7 +369,6 @@ package htmlelements
 
       if (_hasStartedPlaying) {
           _stream.resume();
-          _timer.start();
           _isPaused = false;
       } else {
 
