@@ -26,7 +26,7 @@ mejs.plugins = {
 		{version: [3,0], types: ['video/mp4','video/m4v','video/mov','video/wmv','audio/wma','audio/m4a','audio/mp3','audio/wav','audio/mpeg']}
 	],
 	flash: [
-		{version: [9,0,124], types: ['video/mp4','video/m4v','video/mov','video/flv','video/rtmp','video/x-flv','audio/flv','audio/x-flv','audio/mp3','audio/m4a','audio/mpeg', 'video/youtube', 'video/x-youtube']}
+		{version: [9,0,124], types: ['video/mp4','video/m4v','video/mov','video/flv','video/rtmp','video/x-flv','audio/flv','audio/x-flv','audio/mp3','audio/m4a','audio/mpeg', 'audio/rtmp', 'video/youtube', 'video/x-youtube']}
 		//,{version: [12,0], types: ['video/webm']} // for future reference (hopefully!)
 	],
 	youtube: [
@@ -3415,8 +3415,11 @@ if (typeof jQuery != 'undefined') {
 			var t = this;
 
 			//Toggle the long video class if the video is longer than an hour.
-			t.container.toggleClass("mejs-long-video", t.media.duration > 3600);
-			
+			if ((t.media.duration >= 3600 &! t.container.hasClass("mejs-long-video")) || 
+          (t.media.duration <  3600 && t.container.hasClass("mejs-long-video"))) {
+        t.container.toggleClass("mejs-long-video");
+      }
+
 			if (t.durationD && (t.options.duration > 0 || t.media.duration)) {
 				t.durationD.html(mejs.Utility.secondsToTimeCode(t.options.duration > 0 ? t.options.duration : t.media.duration, t.options.alwaysShowHours, t.options.showTimecodeFrameCount, t.options.framesPerSecond || 25));
 			}		

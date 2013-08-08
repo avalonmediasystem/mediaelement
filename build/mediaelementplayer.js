@@ -1540,8 +1540,11 @@ if (typeof jQuery != 'undefined') {
 			var t = this;
 
 			//Toggle the long video class if the video is longer than an hour.
-			t.container.toggleClass("mejs-long-video", t.media.duration > 3600);
-			
+			if ((t.media.duration >= 3600 &! t.container.hasClass("mejs-long-video")) || 
+          (t.media.duration <  3600 && t.container.hasClass("mejs-long-video"))) {
+        t.container.toggleClass("mejs-long-video");
+      }
+
 			if (t.durationD && (t.options.duration > 0 || t.media.duration)) {
 				t.durationD.html(mejs.Utility.secondsToTimeCode(t.options.duration > 0 ? t.options.duration : t.media.duration, t.options.alwaysShowHours, t.options.showTimecodeFrameCount, t.options.framesPerSecond || 25));
 			}		
