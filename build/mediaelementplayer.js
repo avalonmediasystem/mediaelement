@@ -1838,7 +1838,7 @@ if (typeof jQuery != 'undefined') {
 					'</div>')
 					.appendTo(controls);
 
-				if (t.media.pluginType === 'native' || (!t.options.usePluginFullScreen && !mejs.MediaFeatures.isFirefox)) {
+				if (t.media.pluginType === 'native' || !t.options.usePluginFullScreen) {
 
 					fullscreenBtn.click(function() {
 						var isFullScreen = (mejs.MediaFeatures.hasTrueNativeFullScreen && mejs.MediaFeatures.isFullScreen()) || player.isFullScreen;
@@ -2075,7 +2075,7 @@ if (typeof jQuery != 'undefined') {
 			var t = this;
 
 			// firefox+flash can't adjust plugin sizes without resetting :(
-			if (t.media.pluginType !== 'native' && (mejs.MediaFeatures.isFirefox || t.options.usePluginFullScreen)) {
+			if (t.media.pluginType !== 'native' && t.options.usePluginFullScreen) {
 				//t.media.setFullscreen(true);
 				//player.isFullScreen = true;
 				return;
@@ -2202,13 +2202,6 @@ if (typeof jQuery != 'undefined') {
 
             // Prevent container from attempting to stretch a second time
             clearTimeout(t.containerSizeTimeout);
-
-			// firefox can't adjust plugins
-			if (t.media.pluginType !== 'native' && mejs.MediaFeatures.isFirefox) {
-				t.media.setFullscreen(false);
-				//player.isFullScreen = false;
-				return;
-			}
 
 			// come outo of native fullscreen
 			if (mejs.MediaFeatures.hasTrueNativeFullScreen && (mejs.MediaFeatures.isFullScreen() || t.isFullScreen)) {
