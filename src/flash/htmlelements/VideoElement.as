@@ -386,10 +386,8 @@ package htmlelements
       }
 
       if (_hasStartedPlaying) {
-        if (_isPaused) {
           _stream.resume();
           _isPaused = false;
-        }
       } else {
 
         if (_isRTMP) {
