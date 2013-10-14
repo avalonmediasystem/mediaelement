@@ -64,7 +64,7 @@ package htmlelements
 				return Math.round(_bytesLoaded/_bytesTotal*100);
 		}
 
-		public function AudioElement(element:FlashMediaElement, autoplay:Boolean, preload:String, timerRate:Number, startVolume:Number) 
+		public function AudioElement(element:FlashMediaElement, autoplay:Boolean, preload:String, timerRate:Number, startVolume:Number):void 
 		{
 			_element = element;
 			_autoplay = autoplay;
@@ -96,7 +96,7 @@ package htmlelements
 			
 			try {
 				var id3:ID3Info = _sound.id3;
-				var obj = {
+				var obj:Object = {
 					type:'id3',
 					album:id3.album,
 					artist:id3.artist,
@@ -105,17 +105,17 @@ package htmlelements
 					songName:id3.songName,
 					track:id3.track,
 					year:id3.year
-				}
+				};
 			} catch (err:Error) {}
 			
 			
 		}
 
-		function timerEventHandler(e:TimerEvent) {
+		function timerEventHandler(e:TimerEvent):void {
 			_currentTime = _soundChannel.position/1000;
 
 			// calculate duration
-			var duration = Math.round(_sound.length * _sound.bytesTotal/_sound.bytesLoaded/100) / 10;
+			var duration:Number = Math.round(_sound.length * _sound.bytesTotal/_sound.bytesLoaded/100) / 10;
 
 			// check to see if the estimated duration changed
 			if (_duration != duration && !isNaN(duration)) {
@@ -141,7 +141,7 @@ package htmlelements
 			}
 		}
 
-		function soundCompleteHandler(e:Event) {
+		function soundCompleteHandler(e:Event):void {
 			handleEnded();
 		}
 
@@ -305,7 +305,7 @@ package htmlelements
 			_isLoaded = false;
 		}
 
-		private function sendEvent(eventName:String) {
+		private function sendEvent(eventName:String):void {
 
 			// calculate this to mimic HTML5
 			_bufferedTime = _bytesLoaded / _bytesTotal * _duration;
