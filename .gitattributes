@@ -1,5 +1,6 @@
 * text=auto eol=lf
 
+*.swf binary
 *.jar binary
 *.mp3 binary
 *.mp4 binary
