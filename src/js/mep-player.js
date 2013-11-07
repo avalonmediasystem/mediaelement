@@ -798,6 +798,12 @@
 						.width('100%')
 						.height('100%');
 
+                                        // <video> element on iPhone will block all touch events
+                                        // this fix ensures the player buttons are touchable
+                                        if (mejs.MediaFeatures.isiPhone) {
+                                                t.$media.height('1px');
+                                        }
+
 					// if shim is ready, send the size to the embeded plugin
 					if (t.isVideo) {
 						if (t.media.setVideoSize) {
@@ -898,9 +904,13 @@
 				poster.hide();
 			}
 
-			media.addEventListener('play',function() {
-				poster.hide();
-			}, false);
+			// poster should always be visible on iPhone
+			// since the <video> element is being "hidden"
+			if (!mejs.MediaFeatures.isiPhone) {
+			        media.addEventListener('play',function() {
+			                 poster.hide();
+			        }, false);
+			}
 
 			if(player.options.showPosterWhenEnded && player.options.autoRewind){
 				media.addEventListener('ended',function() {
@@ -973,6 +983,13 @@
 				controls.find('.mejs-time-buffering').hide();
 				error.hide();
 			}, false);
+
+			// on iPhone, show bigPlay after user quits video
+			if (mejs.MediaFeatures.isiPhone) {
+				media.addEventListener('webkitendfullscreen',function() {
+					bigPlay.show();
+				}, false);
+			}
 
 			media.addEventListener('playing', function() {
 				bigPlay.hide();
