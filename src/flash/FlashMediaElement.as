@@ -351,6 +351,7 @@ package
 						ExternalInterface.addCallback("stopMedia", stopMedia);
 	
 						ExternalInterface.addCallback("setSrc", setSrc);
+						ExternalInterface.addCallback("switchStream", switchStream);
 						ExternalInterface.addCallback("setCurrentTime", setCurrentTime);
 						ExternalInterface.addCallback("setVolume", setVolume);
 						ExternalInterface.addCallback("setMuted", setMuted);
@@ -814,6 +815,11 @@ package
 		public function setSrc(url:String):void {
 			_output.appendText("setSrc: " + url + "\n");
 			_mediaElement.setSrc(url);
+		}
+
+		public function switchStream(url:String):void {
+			_output.appendText("switchStream: " + url + "\n");
+			_mediaElement.switchStream(url);
 		}
 
 		public function stopMedia():void {

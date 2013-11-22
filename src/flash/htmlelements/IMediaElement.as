@@ -13,6 +13,8 @@ package htmlelements
 		function stop():void;
 
 		function setSrc(url:String):void;
+
+		function switchStream(url:String):void;
 		
 		function setSize(width:Number, height:Number):void;
 

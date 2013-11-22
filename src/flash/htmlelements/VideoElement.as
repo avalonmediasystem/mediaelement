@@ -4,6 +4,8 @@ package htmlelements
   import flash.events.*;
   import flash.net.NetConnection;
   import flash.net.NetStream;
+  import flash.net.NetStreamPlayOptions;
+  import flash.net.NetStreamPlayTransitions;
   import flash.media.Video;
   import flash.media.SoundTransform;
   import flash.utils.*;
@@ -374,6 +376,20 @@ package htmlelements
         _playWhenConnected = false;
       }
 
+    }
+
+    // Seamlessly switches to a different derivative of the same stream
+    public function switchStream(url:String):void {
+      if (_isRTMP) {
+        var opts:NetStreamPlayOptions = new NetStreamPlayOptions();
+        opts.oldStreamName = parseRTMP(_currentUrl).stream;
+        opts.streamName = parseRTMP(url).stream;
+        opts.transition = NetStreamPlayTransitions.SWITCH;
+        _stream.play2(opts);
+        _currentUrl = url;
+      } else {
+        _stream.play(getCurrentUrl(0), 0);
+      }
     }
 
     public function play():void {

@@ -1133,6 +1133,9 @@
 		setSrc: function(src) {
 			this.media.setSrc(src);
 		},
+		switchStream: function(url) {
+			this.media.switchStream(url);
+		},
 		remove: function() {
 			var t = this, featureIndex, feature;
 

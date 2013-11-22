@@ -48,6 +48,16 @@ mejs.HtmlMediaElement = {
 		}
 	},
 
+	switchStream: function (url) {
+		var wasPaused = this.paused;
+		this.setSrc(""); 
+		this.setSrc(url); 
+		this.load();
+		if (!wasPaused) {
+			this.play();
+		}
+	},
+
 	setVideoSize: function (width, height) {
 		this.width = width;
 		this.height = height;
@@ -196,9 +206,26 @@ mejs.PluginMediaElement.prototype = {
 			}
 		}
 
-    // Unhides the poster when switching streams
-    $('.mejs-poster').show();
+		// Unhides the poster when switching streams
+		$('.mejs-poster').show();
 	},
+
+	// Switches to a derivative of the current stream. url must be string
+	switchStream: function (url) {
+		if (this.pluginType == 'flash') {
+			var newSrc = mejs.Utility.absolutizeUrl(url);
+			this.pluginApi.switchStream(newSrc);
+			this.src = newSrc;
+		} else {
+			var wasPaused = this.paused;
+			this.pluginApi.setSrc(url); 
+			this.load();
+			if (!wasPaused) {
+				this.play();	
+			}
+		}
+	},
+
 	setCurrentTime: function (time) {
 		if (this.pluginApi != null) {
 			if (this.pluginType == 'youtube') {

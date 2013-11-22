@@ -312,6 +312,9 @@ package htmlelements
 		}
 		
 		
+		public function switchStream(url:String):void {
+			// Missing implementation
+		}
 		
 
 		public function load():void {
