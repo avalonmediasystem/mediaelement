@@ -899,13 +899,15 @@ package
 		
 
 		private function repositionVideo():void {
+
+			_stageWidth = stage.stageWidth;
+			_stageHeight = stage.stageHeight;
 		
 			if (stage.displayState == "fullScreen") {
 				fullscreen = true;
 			} else {
 				fullscreen = false;
 			}
-			
 			_output.appendText("positioning video "+stage.displayState+"\n");
 
 			if (_mediaElement is VideoElement) {
@@ -939,7 +941,7 @@ package
 				} else {
 					stageRatio = _stageWidth/_stageHeight;
 					nativeRatio = _nativeVideoWidth/_nativeVideoHeight;
-				
+
 					// adjust size and position
 					if (nativeRatio > stageRatio) {
 						_mediaElement.setSize(_stageWidth, _nativeVideoHeight * _stageWidth / _nativeVideoWidth);					
