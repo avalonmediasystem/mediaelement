@@ -227,7 +227,7 @@ mejs.PluginMediaElement.prototype = {
 	},
 
 	setCurrentTime: function (time) {
-		if (this.pluginApi != null) {
+		if (this.pluginApi != null && (!this.duration | time <= this.duration)) {
 			if (this.pluginType == 'youtube') {
 				this.pluginApi.seekTo(time);
 			} else {
