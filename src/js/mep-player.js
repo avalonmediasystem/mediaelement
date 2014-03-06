@@ -663,6 +663,11 @@
 				t.media.addEventListener('ended', function (e) {
 					if(t.options.autoRewind) {
 						try{
+							// Android 4 HLS
+							if (mejs.MediaFeatures.isAndroid4) {
+								t.media.play();
+							}
+
 							t.media.setCurrentTime(0);
 						} catch (exp) {
 
