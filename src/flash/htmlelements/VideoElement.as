@@ -142,6 +142,9 @@ package htmlelements
     }
 
     private function timerHandler(e:TimerEvent):void {
+      if (_isSeeking) {
+        return;
+      }
 
       _bytesLoaded = _stream.bytesLoaded;
       _bytesTotal = _stream.bytesTotal;
@@ -152,9 +155,9 @@ package htmlelements
 
       //trace("bytes", _bytesLoaded, _bytesTotal);
 
-      if (_bytesLoaded < _bytesTotal)
+      if (_bytesLoaded < _bytesTotal) {
         sendEvent(HtmlMediaEvent.PROGRESS);
-
+      }
     }
 
     // internal events
@@ -201,6 +204,7 @@ package htmlelements
           setTimeout(playIfStuck, 300);
           break;
 
+        case "NetStream.Seek.Notify":
         case "NetStream.Seek.Complete":
           _isSeeking = false;
           sendEvent(HtmlMediaEvent.PROGRESS);
@@ -460,6 +464,7 @@ package htmlelements
         sendEvent(HtmlMediaEvent.SEEKING);
         // Normal seek if it is in buffer and this is the first seek
         if (pos < bufferPosition && _seekOffset == 0) {
+          _isSeeking = true;
           _stream.seek(pos);
         }
         else {
@@ -469,12 +474,13 @@ package htmlelements
         }
       }
       else {
+        _isSeeking = true;
         sendEvent(HtmlMediaEvent.SEEKING);
         _stream.seek(pos);
       }
 
       if (!_isEnded) {
-        sendEvent(HtmlMediaEvent.TIMEUPDATE);
+      //  sendEvent(HtmlMediaEvent.TIMEUPDATE);
       }
     }
 
