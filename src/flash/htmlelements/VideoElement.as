@@ -48,6 +48,9 @@ package htmlelements
     private var _videoHeight:Number = -1;
 
     private var _timer:Timer;
+    private var _pausedSeekTimer:Timer;
+    private var _pausedSeekTimerRate:Number = 200;
+    private var _pausedSeekTime:Number;
 
     private var _isRTMP:Boolean = false;
     private var _streamer:String = "";
@@ -139,6 +142,8 @@ package htmlelements
       _timer = new Timer(timerRate);
       _timer.addEventListener("timer", timerHandler);
 
+      _pausedSeekTimer = new Timer(_pausedSeekTimerRate);
+      _pausedSeekTimer.addEventListener("timer", pausedSeekTimerHandler);
     }
 
     private function timerHandler(e:TimerEvent):void {
@@ -157,6 +162,17 @@ package htmlelements
 
       if (_bytesLoaded < _bytesTotal) {
         sendEvent(HtmlMediaEvent.PROGRESS);
+      }
+    }
+
+    private function pausedSeekTimerHandler(e:TimerEvent):void {
+      if (_pausedSeekTime != _stream.time) {
+        _stream.pause();
+        _pausedSeekTimer.stop();
+        _isSeeking = false;
+        sendEvent(HtmlMediaEvent.PROGRESS);
+        sendEvent(HtmlMediaEvent.TIMEUPDATE);
+        sendEvent(HtmlMediaEvent.SEEKED);
       }
     }
 
@@ -191,6 +207,9 @@ package htmlelements
 
         // STREAM
         case "NetStream.Play.Start":
+          if (_isSeeking) {
+            return;
+          }
           if (!_isPreloading && !_isPaused) {
             sendEvent(HtmlMediaEvent.CANPLAY);
             sendEvent(HtmlMediaEvent.PLAY);
@@ -206,13 +225,24 @@ package htmlelements
 
         case "NetStream.Seek.Notify":
         case "NetStream.Seek.Complete":
-          _isSeeking = false;
-          sendEvent(HtmlMediaEvent.PROGRESS);
-          sendEvent(HtmlMediaEvent.TIMEUPDATE);
-          sendEvent(HtmlMediaEvent.SEEKED);
+          if (!_isPaused) {
+            _isSeeking = false;
+            sendEvent(HtmlMediaEvent.PROGRESS);
+            sendEvent(HtmlMediaEvent.TIMEUPDATE);
+            sendEvent(HtmlMediaEvent.SEEKED);
+          } else {
+            if (!_pausedSeekTimer.running) {
+              _pausedSeekTime = _stream.time;
+              _pausedSeekTimer.start();
+              _stream.resume();
+            }
+          }
           break;
 
         case "NetStream.Pause.Notify":
+          if (_isSeeking) {
+            return;
+          }
           _isPaused = true;
           sendEvent(HtmlMediaEvent.PAUSE);
           break;
