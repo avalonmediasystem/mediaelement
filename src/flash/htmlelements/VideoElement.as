@@ -154,7 +154,7 @@ package htmlelements
         sendEvent(HtmlMediaEvent.TIMEUPDATE);
       }
 
-      //trace("bytes", _bytesLoaded, _bytesTotal);
+      //Logger.debug("bytes", _bytesLoaded, _bytesTotal);
 
       if (_bytesLoaded < _bytesTotal)
         sendEvent(HtmlMediaEvent.PROGRESS);
@@ -163,9 +163,8 @@ package htmlelements
 
     // internal events
     private function netStatusHandler(event:NetStatusEvent):void {
-      trace("netStatus " + event.info.code + " isPreloading: " + _isPreloading);
+      Logger.debug("netStatus " + event.info.code + " isPreloading: " + _isPreloading);
 
-      Logger.debug(event.info.code);
       switch (event.info.code) {
 
         case "NetStream.Buffer.Empty":
@@ -188,7 +187,7 @@ package htmlelements
           connectStream();
           break;
         case "NetStream.Play.StreamNotFound":
-          trace("Unable to locate video");
+          Logger.debug("Unable to locate video");
           break;
 
         // STREAM
@@ -213,7 +212,7 @@ package htmlelements
           sendEvent(HtmlMediaEvent.TIMEUPDATE);
           sendEvent(HtmlMediaEvent.SEEKED);
           break;
-
+          
         case "NetStream.Pause.Notify":
           _isPaused = true;
           sendEvent(HtmlMediaEvent.PAUSE);
@@ -236,12 +235,13 @@ package htmlelements
       if (_isSeeking && _isPaused) {
         _stream.resume();
         _stream.pause();
-        trace("Play/Pausing because I haven't received NetStream.Seek.Complete");
+        Logger.info("Stream time: " + _stream.time + " Player time: " + currentTime());
+        Logger.warn("Play/Pausing because I haven't received NetStream.Seek.Complete");
       }
     }
 
     private function securityErrorHandler(event:SecurityErrorEvent):void {
-      trace("securityErrorHandler: " + event);
+      Logger.error("securityErrorHandler: " + event);
     }
 
     private function asyncErrorHandler(event:AsyncErrorEvent):void {
@@ -258,7 +258,7 @@ package htmlelements
 
 
       // set size?
-      trace("received metadata");
+      Logger.debug("received metadata");
       sendEvent(HtmlMediaEvent.LOADEDMETADATA);
 
 
@@ -272,7 +272,7 @@ package htmlelements
 
         _isPaused = true;
         _isPreloading = false;
-        trace("done preloading");
+        Logger.debug("done preloading");
 
         sendEvent(HtmlMediaEvent.PROGRESS);
         sendEvent(HtmlMediaEvent.TIMEUPDATE);
@@ -332,7 +332,7 @@ package htmlelements
 
 
     private function connectStream():void {
-      trace("connectStream");
+      Logger.debug("connectStream");
       _stream = new NetStream(_connection);
 
       // set the buffer to ensure nice playback
@@ -566,7 +566,7 @@ package htmlelements
         rtmpInfo.stream = url.split("/").pop();
       }
 
-      trace("parseRTMP - server: " + rtmpInfo.server + " stream: " + rtmpInfo.stream);
+      Logger.debug("parseRTMP - server: " + rtmpInfo.server + " stream: " + rtmpInfo.stream);
 
       return rtmpInfo;
     }
