@@ -30,8 +30,8 @@ FLEXVER=flex_sdk_4.6
 FLEXPATH=./$FLEXVER
 
 ## flash/mediaelement.swf - debug
-$FLEXPATH/bin/mxmlc -debug -strict=false -warnings=true ./FlashMediaElement.as -o ../../build/flashmediaelement-debug.swf -library-path+="$FLEXPATH/lib" -include-libraries+=./flashmediaelement.swc -use-network=true -headless-server -static-link-runtime-shared-libraries
+$FLEXPATH/bin/mxmlc -debug -strict=false -warnings=true ./FlashMediaElement.as -o ../../build/flashmediaelement-debug.swf -library-path+="$FLEXPATH/lib" -include-libraries+=./flashmediaelement.swc -include-libraries+=./ThunderBoltAS3_Flex_v2.3.swc -use-network=true -headless-server -static-link-runtime-shared-libraries
 ##
 ## flash/mediaelement.swf - non-debug
-$FLEXPATH/bin/mxmlc -debug -strict=false -warnings=true ./FlashMediaElement.as -o ../../build/flashmediaelement.swf -library-path+="$FLEXPATH/lib" -include-libraries+=./flashmediaelement.swc -use-network=true -headless-server -static-link-runtime-shared-libraries
+$FLEXPATH/bin/mxmlc -debug -strict=false -warnings=true ./FlashMediaElement.as -o ../../build/flashmediaelement.swf -library-path+="$FLEXPATH/lib" -include-libraries+=./flashmediaelement.swc -include-libraries+=./ThunderBoltAS3_Flex_v2.3.swc -use-network=true -headless-server -static-link-runtime-shared-libraries
 ##

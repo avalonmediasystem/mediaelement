@@ -10,6 +10,8 @@ package htmlelements
   import flash.media.SoundTransform;
   import flash.utils.*;
 
+  import org.osflash.thunderbolt.Logger;
+
   import FlashMediaElement;
   import HtmlMediaEvent;
 
@@ -139,6 +141,8 @@ package htmlelements
       _timer = new Timer(timerRate);
       _timer.addEventListener("timer", timerHandler);
 
+      Logger.includeTime = false;
+      Logger.showCaller = false;
     }
 
     private function timerHandler(e:TimerEvent):void {
@@ -161,6 +165,7 @@ package htmlelements
     private function netStatusHandler(event:NetStatusEvent):void {
       trace("netStatus " + event.info.code + " isPreloading: " + _isPreloading);
 
+      Logger.debug(event.info.code);
       switch (event.info.code) {
 
         case "NetStream.Buffer.Empty":
