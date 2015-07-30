@@ -202,6 +202,7 @@ package htmlelements
           break;
 
         case "NetStream.Seek.Complete":
+        case "NetStream.Seek.Notify":
           _isSeeking = false;
           sendEvent(HtmlMediaEvent.PROGRESS);
           sendEvent(HtmlMediaEvent.TIMEUPDATE);
@@ -579,4 +580,3 @@ package htmlelements
     }
   }
 }
-
