@@ -27,7 +27,7 @@ mejs.plugins = {
 		{version: [3,0], types: ['video/mp4','video/m4v','video/mov','video/wmv','audio/wma','audio/m4a','audio/mp3','audio/wav','audio/mpeg']}
 	],
 	flash: [
-		{version: [9,0,124], types: ['video/mp4','video/m4v','video/mov','video/flv','video/rtmp','video/x-flv','audio/flv','audio/x-flv','audio/mp3','audio/m4a','audio/mpeg', 'video/youtube', 'video/x-youtube']}
+		{version: [9,0,124], types: ['video/mp4','video/m4v','video/mov','video/flv','video/rtmp','video/x-flv','audio/flv','audio/x-flv','audio/mp3','audio/m4a','audio/mpeg', 'audio/rtmp', 'video/youtube', 'video/x-youtube']}
 		//,{version: [12,0], types: ['video/webm']} // for future reference (hopefully!)
 	],
 	youtube: [
@@ -316,15 +316,16 @@ mejs.MediaFeatures = {
 		t.isiPhone = (ua.match(/iphone/i) !== null);
 		t.isiOS = t.isiPhone || t.isiPad;
 		t.isAndroid = (ua.match(/android/i) !== null);
+		t.isAndroid4 = (ua.match(/android 4/i) !== null);
 		t.isBustedAndroid = (ua.match(/android 2\.[12]/) !== null);
 		t.isBustedNativeHTTPS = (location.protocol === 'https:' && (ua.match(/android [12]\./) !== null || ua.match(/macintosh.* version.* safari/) !== null));
-		t.isIE = (nav.appName.toLowerCase().match(/trident/gi) !== null);
+		t.isIE = (nav.appName.toLowerCase().match(/trident/gi) !== null) | (nav.appName.toLowerCase().indexOf("microsoft") != -1);
 		t.isChrome = (ua.match(/chrome/gi) !== null);
 		t.isFirefox = (ua.match(/firefox/gi) !== null);
 		t.isWebkit = (ua.match(/webkit/gi) !== null);
 		t.isGecko = (ua.match(/gecko/gi) !== null) && !t.isWebkit && !t.isIE;
 		t.isOpera = (ua.match(/opera/gi) !== null);
-		t.hasTouch = ('ontouchstart' in window && window.ontouchstart != null);
+		t.hasTouch = ('ontouchstart' in window); //  && window.ontouchstart != null); // this breaks iOS 7
 		
 		// borrowed from Modernizr
 		t.svg = !! document.createElementNS &&
@@ -486,6 +487,16 @@ mejs.HtmlMediaElement = {
 		}
 	},
 
+	switchStream: function (url) {
+		var wasPaused = this.paused;
+		this.setSrc(""); 
+		this.setSrc(url); 
+		this.load();
+		if (!wasPaused) {
+			this.play();
+		}
+	},
+
 	setVideoSize: function (width, height) {
 		this.width = width;
 		this.height = height;
@@ -634,9 +645,28 @@ mejs.PluginMediaElement.prototype = {
 			}
 		}
 
+		// Unhides the poster when switching streams
+		$('.mejs-poster').show();
 	},
+
+	// Switches to a derivative of the current stream. url must be string
+	switchStream: function (url) {
+		if (this.pluginType == 'flash') {
+			var newSrc = mejs.Utility.absolutizeUrl(url);
+			this.pluginApi.switchStream(newSrc);
+			this.src = newSrc;
+		} else {
+			var wasPaused = this.paused;
+			this.pluginApi.setSrc(url); 
+			this.load();
+			if (!wasPaused) {
+				this.play();	
+			}
+		}
+	},
+
 	setCurrentTime: function (time) {
-		if (this.pluginApi != null) {
+		if (this.pluginApi != null && (!this.duration | time <= this.duration)) {
 			if (this.pluginType == 'youtube') {
 				this.pluginApi.seekTo(time);
 			} else {
@@ -1051,7 +1081,9 @@ mejs.HtmlMediaElementShim = {
 				// normal check
 				if (htmlMediaElement.canPlayType(mediaFiles[i].type).replace(/no/, '') !== '' 
 					// special case for Mac/Safari 5.0.3 which answers '' to canPlayType('audio/mp3') but 'maybe' to canPlayType('audio/mpeg')
-					|| htmlMediaElement.canPlayType(mediaFiles[i].type.replace(/mp3/,'mpeg')).replace(/no/, '') !== '') {
+					|| htmlMediaElement.canPlayType(mediaFiles[i].type.replace(/mp3/,'mpeg')).replace(/no/, '') !== ''
+					// special case for Android 4.x.x, whose canPlayType HLS usually return ''
+					|| (mejs.MediaFeatures.isAndroid4 && mediaFiles[i].type.indexOf("vnd.apple.mpegURL")) != -1) {
 					result.method = 'native';
 					result.url = mediaFiles[i].url;
 					break;
