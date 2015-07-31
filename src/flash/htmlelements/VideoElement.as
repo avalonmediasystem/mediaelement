@@ -45,6 +45,8 @@ package htmlelements
     private var _bufferingChanged:Boolean = false;
     private var _seekOffset:Number = 0;
 
+    private var _pendingSeek:Number = -1;
+    private var _playerSticks:Boolean = false;
 
     private var _videoWidth:Number = -1;
     private var _videoHeight:Number = -1;
@@ -105,7 +107,9 @@ package htmlelements
 
     public function currentTime():Number {
       var currentTime:Number = 0;
-      if (_stream != null) {
+      if (_playerSticks && _pendingSeek > -1) {
+        currentTime = _pendingSeek;
+      } else if (_stream != null) {
         currentTime = _stream.time;
         if (_pseudoStreamingEnabled) {
           currentTime += _seekOffset;
@@ -192,6 +196,7 @@ package htmlelements
 
         // STREAM
         case "NetStream.Play.Start":
+          _pendingSeek = -1;
           if (!_isPreloading && !_isPaused) {
             sendEvent(HtmlMediaEvent.CANPLAY);
             sendEvent(HtmlMediaEvent.PLAY);
@@ -233,9 +238,11 @@ package htmlelements
     // This event only comes after we click play again
     private function playIfStuck():void {
       if (_isSeeking && _isPaused) {
-        _stream.resume();
-        _stream.pause();
+        _playerSticks = true;
         Logger.info("Stream time: " + _stream.time + " Player time: " + currentTime());
+        sendEvent(HtmlMediaEvent.PROGRESS);
+        sendEvent(HtmlMediaEvent.TIMEUPDATE);
+        sendEvent(HtmlMediaEvent.SEEKED);
         Logger.warn("Play/Pausing because I haven't received NetStream.Seek.Complete");
       }
     }
@@ -475,6 +482,7 @@ package htmlelements
         }
       }
       else {
+        _pendingSeek = pos;
         sendEvent(HtmlMediaEvent.SEEKING);
         _stream.seek(pos);
       }
