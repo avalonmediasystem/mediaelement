@@ -3009,6 +3009,8 @@ if (typeof jQuery != 'undefined') {
 
 			media.addEventListener('seeked', function() {
 				loading.hide();
+				if (t.getCurrentTime() > 0 && $('.mejs-psoter').is(':visible'))
+					('.mejs-poster').hide();
 				controls.find('.mejs-time-buffering').hide();
 			}, false);
 
