@@ -1028,7 +1028,7 @@
 
 			media.addEventListener('seeked', function() {
 				loading.hide();
-				if (t.getCurrentTime() > 0 && $('.mejs-poster').is(':visible'))
+				if (!mejs.MediaFeatures.isiPhone && t.getCurrentTime() > 0 && $('.mejs-poster').is(':visible'))
 					$('.mejs-poster').hide();
 				controls.find('.mejs-time-buffering').hide();
 			}, false);
