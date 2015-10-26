@@ -86,6 +86,9 @@
 }
 
 .mejs-poster img {
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
 	border: 0;
 	padding: 0;
 	border: 0;
@@ -886,7 +889,6 @@
 }
 /* End: Postroll */
 
-
 /* Start: Speed */
 div.mejs-speed-button {
 	width: 46px !important;
@@ -998,4 +1000,3 @@ div.mejs-speed-button {
 }
 
 /* End: Skip Back */
-
