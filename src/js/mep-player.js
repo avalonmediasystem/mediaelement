@@ -992,7 +992,7 @@
 				lastControl = others.last(),
 			        lastControlPosition = null,
 				current = t.controls.find('.mejs-time-current'),
-				loaded = t.controls.find('.mejs-time-loaded'),
+				loaded = t.controls.find('.mejs-time-loaded')
 
 			// skip calculation if hidden
 			if (!t.container.is(':visible') || !rail.length || !rail.is(':visible')) {
