@@ -299,7 +299,9 @@ mejs.HtmlMediaElementShim = {
 					// special case for Mac/Safari 5.0.3 which answers '' to canPlayType('audio/mp3') but 'maybe' to canPlayType('audio/mpeg')
 					|| htmlMediaElement.canPlayType(mediaFiles[i].type.replace(/mp3/,'mpeg')).replace(/no/, '') !== ''
 					// special case for m4a supported by detecting mp4 support
-					|| htmlMediaElement.canPlayType(mediaFiles[i].type.replace(/m4a/,'mp4')).replace(/no/, '') !== '') {
+					|| htmlMediaElement.canPlayType(mediaFiles[i].type.replace(/m4a/,'mp4')).replace(/no/, '') !== ''
+					// special case for Android 4.x.x, whose canPlayType HLS usually return ''
+				        || (mejs.MediaFeatures.isAndroid4 && mediaFiles[i].type.indexOf("vnd.apple.mpegURL") != -1 )) {
 					result.method = 'native';
 					result.url = mediaFiles[i].url;
 					break;

@@ -452,7 +452,10 @@
 
 			doAnimation = typeof doAnimation == 'undefined' || doAnimation;
 
-			if (!t.controlsAreVisible || t.options.alwaysShowControls || t.keyboardAction)
+			focusedElement = document.activeElement;
+			controlIsFocused = $.contains( t.controls.get( 0 ), focusedElement );
+
+			if (!t.controlsAreVisible || t.options.alwaysShowControls || t.keyboardAction || controlIsFocused)
 				return;
 
 			if (doAnimation) {
@@ -634,9 +637,15 @@
 							.bind('mouseenter', function () {
 								if (t.controlsEnabled) {
 									if (!t.options.alwaysShowControls ) {
+									    // do not hide controls if they're being hovered over
+									    if (t.controls.is(':hover')) {
+										t.killControlsTimer('enter');
+										t.showControls();
+									    } else {
 										t.killControlsTimer('enter');
 										t.showControls();
 										t.startControlsTimer(2500);
+									    }
 									}
 								}
 							})
@@ -645,7 +654,9 @@
 									if (!t.controlsAreVisible) {
 										t.showControls();
 									}
-									if (!t.options.alwaysShowControls) {
+									//t.killControlsTimer('move');
+									// do not hide controls if they're being hovered over
+									if (!t.options.alwaysShowControls && !t.controls.is(':hover')) {
 										t.startControlsTimer(2500);
 									}
 								}
@@ -657,6 +668,15 @@
 									}
 								}
 							});
+
+						t.controls
+						    .bind('mouseleave', function () {
+							    if (t.controlsEnabled) {
+								if (!t.media.paused && !t.options.alwaysShowControls) {
+								    t.startControlsTimer(1000);
+								}
+							    }
+						    });
 					}
 
 					if(t.options.hideVideoControlsOnLoad) {
@@ -705,6 +725,11 @@
 				t.media.addEventListener('ended', function (e) {
 					if(t.options.autoRewind) {
 						try{
+							// Android 4 HLS
+							if (mejs.MediaFeatures.isAndroid4) {
+								t.media.play();
+							}
+
 							t.media.setCurrentTime(0);
                             // Fixing an Android stock browser bug, where "seeked" isn't fired correctly after ending the video and jumping to the beginning
                             window.setTimeout(function(){
@@ -764,6 +789,16 @@
 					}
 				});
 
+				// keep the player in sync with the HTML5 video element when switching streams
+				t.media.addEventListener('durationchange', function(e) {
+					if (t.updateDuration) {
+						t.updateDuration();
+					}
+					if (t.updateCurrent) {
+						t.updateCurrent();
+					}
+				}, false);
+
 				// webkit has trouble doing this without a delay
 				setTimeout(function () {
 					t.setPlayerSize(t.width, t.height);
@@ -774,7 +809,7 @@
 				t.globalBind('resize', function() {
 
 					// don't resize for fullscreen mode
-					if ( !(t.isFullScreen || (mejs.MediaFeatures.hasTrueNativeFullScreen && document.webkitIsFullScreen)) ) {
+					if ( window.top == window.self && !(t.isFullScreen || (mejs.MediaFeatures.hasTrueNativeFullScreen && document.webkitIsFullScreen)) ) {
 						t.setPlayerSize(t.width, t.height);
 					}
 
@@ -893,6 +928,12 @@
 						.width('100%')
 						.height('100%');
 
+                                        // <video> element on iPhone will block all touch events
+                                        // this fix ensures the player buttons are touchable
+                                        if (mejs.MediaFeatures.isiPhone) {
+                                                t.$media.height('1px');
+                                        }
+
 					// if shim is ready, send the size to the embeded plugin
 					if (t.isVideo) {
 						if (t.media.setVideoSize) {
@@ -919,6 +960,13 @@
 
 			}
 
+			// special case for big play button so it doesn't go over the controls area
+			var playLayer = t.layers.find('.mejs-overlay-play'),
+			    playButton = playLayer.find('.mejs-overlay-button');
+
+			playLayer.height(t.container.height() - t.controls.height());
+			playButton.css('margin-top', '-' + (playButton.height()/2 - t.controls.height()/2).toString() + 'px'  );
+
 		},
 
 		setControlsSize: function() {
@@ -929,7 +977,9 @@
 				total = t.controls.find('.mejs-time-total'),
 				others = rail.siblings(),
 				lastControl = others.last(),
-				lastControlPosition = null;
+			        lastControlPosition = null,
+				current = t.controls.find('.mejs-time-current'),
+				loaded = t.controls.find('.mejs-time-loaded')
 
 			// skip calculation if hidden
 			if (!t.container.is(':visible') || !rail.length || !rail.is(':visible')) {
@@ -956,7 +1006,7 @@
 				});
 
 				// fit the rail into the remaining space
-				railWidth = t.controls.width() - usedWidth - (rail.outerWidth(true) - rail.width());
+				railWidth = t.controls.width() - usedWidth - (rail.outerWidth(true) - rail.width()) - 2;
 			}
 
 			// resize the rail,
@@ -975,6 +1025,11 @@
 			} while (lastControlPosition !== null && lastControlPosition.top > 0 && railWidth > 0);
 
 			t.container.trigger('controlsresize');
+
+			if (t.setProgressRail)
+				t.setProgressRail();
+			if (t.setCurrentRail)
+				t.setCurrentRail();
 		},
 
 
@@ -998,13 +1053,29 @@
 				poster.hide();
 			}
 
-			media.addEventListener('play',function() {
-				poster.hide();
-			}, false);
+			// poster should always be visible on iPhone
+			// since the <video> element is being "hidden"
+			if (!mejs.MediaFeatures.isiPhone) {
+			        media.addEventListener('play',function() {
+			 		if (mejs.MediaFeatures.isAndroid) {
+                                               poster.hide("fast", function() {
+                                                       media.removeAttribute('poster');
+                                               });
+                                        } else {
+                                               poster.hide();
+                                        }
+			       }, false);
+			}
 
 			if(player.options.showPosterWhenEnded && player.options.autoRewind){
 				media.addEventListener('ended',function() {
-					poster.show();
+			 		if (mejs.MediaFeatures.isAndroid) {
+                                               poster.show("fast", function() {
+                                                       media.setAttribute('poster', posterUrl);
+                                               });
+                                        } else {
+					       poster.show();
+                                        }
 				}, false);
 			}
 		},
@@ -1020,6 +1091,9 @@
 
 			posterImg.attr('src', url);
 			posterDiv.css({'background-image' : 'url(' + url + ')'});
+
+			// HTML5 player gets the poster from here so we need to update it when changing the poster
+			this.$media.attr('poster', url);
 		},
 
 		buildoverlays: function(player, controls, layers, media) {
@@ -1070,6 +1144,13 @@
 				error.hide();
 			}, false);
 
+			// on iPhone, show bigPlay after user quits video
+			if (mejs.MediaFeatures.isiPhone) {
+				media.addEventListener('webkitendfullscreen',function() {
+					bigPlay.show();
+				}, false);
+			}
+
 			media.addEventListener('playing', function() {
 				bigPlay.hide();
 				loading.hide();
@@ -1084,10 +1165,13 @@
 
 			media.addEventListener('seeked', function() {
 				loading.hide();
+				if (!mejs.MediaFeatures.isiPhone && t.getCurrentTime() > 0 && $('.mejs-poster').is(':visible'))
+					$('.mejs-poster').hide();
 				controls.find('.mejs-time-buffering').hide();
 			}, false);
 
 			media.addEventListener('pause',function() {
+				loading.hide(); //fix for Red5 end of stream
 				if (!mejs.MediaFeatures.isiPhone) {
 					bigPlay.show();
 				}
@@ -1238,6 +1322,9 @@
 		},
 		setSrc: function(src) {
 			this.media.setSrc(src);
+		},
+		switchStream: function(url) {
+			this.media.switchStream(url);
 		},
 		remove: function() {
 			var t = this, featureIndex, feature;
