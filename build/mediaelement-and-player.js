@@ -16,7 +16,7 @@
 var mejs = mejs || {};
 
 // version number
-mejs.version = '2.18.2';
+mejs.version = '2.19.0';
 
 
 // player number (for missing, same id attr)
@@ -426,9 +426,10 @@ mejs.MediaFeatures = {
 		t.isOpera = (ua.match(/opera/gi) !== null);
 		t.hasTouch = ('ontouchstart' in window); //  && window.ontouchstart != null); // this breaks iOS 7
 
-		// borrowed from Modernizr
-		t.svg = !! document.createElementNS &&
-				!! document.createElementNS('http://www.w3.org/2000/svg','svg').createSVGRect;
+		// Borrowed from `Modernizr.svgasimg`, sources:
+		// - https://github.com/Modernizr/Modernizr/issues/687
+		// - https://github.com/Modernizr/Modernizr/pull/1209/files
+		t.svgAsImg = !!document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#Image', '1.1');
 
 		// create HTML5 media elements for IE before 9, get a <video> element for fullscreen detection
 		for (i=0; i<html5Elements.length; i++) {
@@ -2383,8 +2384,8 @@ if (typeof jQuery != 'undefined') {
 				$('<span class="sr-only">' + videoPlayerTitle + '</span>').insertBefore(t.$media);
 				// build container
 				t.container =
-					$('<div id="' + t.id + '" class="mejs-container ' + (mejs.MediaFeatures.svg ? 'svg' : 'no-svg') +
-                      '" tabindex="0" role="application" aria-label="' + videoPlayerTitle + '">'+
+					$('<div id="' + t.id + '" class="mejs-container ' + (mejs.MediaFeatures.svgAsImg ? 'svg' : 'no-svg') +
+					  '" tabindex="0" role="application" aria-label="' + videoPlayerTitle + '">'+
 						'<div class="mejs-inner">'+
 							'<div class="mejs-mediaelement"></div>'+
 							'<div class="mejs-layers"></div>'+
@@ -2413,22 +2414,7 @@ if (typeof jQuery != 'undefined') {
 
 
 				// move the <video/video> tag into the right spot
-				if (mf.isiOS) {
-
-					// sadly, you can't move nodes in iOS, so we have to destroy and recreate it!
-					var $newMedia = t.$media.clone();
-
-					t.container.find('.mejs-mediaelement').append($newMedia);
-
-					t.$media.remove();
-					t.$node = t.$media = $newMedia;
-					t.node = t.media = $newMedia[0];
-
-				} else {
-
-					// normal way of moving it into place (doesn't work on iOS)
-					t.container.find('.mejs-mediaelement').append(t.$media);
-				}
+				t.container.find('.mejs-mediaelement').append(t.$media);
 
 				// needs to be assigned here, after iOS remap
 				t.node.player = t;
@@ -2889,7 +2875,9 @@ if (typeof jQuery != 'undefined') {
 		handleError: function(e) {
 			var t = this;
 
-			t.controls.hide();
+			if (t.controls) {
+				t.controls.hide();
+			}
 
 			// Tell user that the file cannot be played
 			if (t.options.error) {
