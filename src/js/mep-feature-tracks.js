@@ -92,7 +92,7 @@
 			} else {
 				// hover or keyboard focus
 				player.captionsButton.on( 'mouseenter focusin', function() {
-					$(this).find('.mejs-captions-selector').css('visibility','visible');
+					$(this).find('.mejs-captions-selector').removeClass('mejs-offscreen');
 				})
 
 				// handle clicks to the language radio buttons
@@ -102,7 +102,7 @@
 				});
 
 				player.captionsButton.on( 'mouseleave focusout', function() {
-					$(this).find(".mejs-captions-selector").css("visibility","hidden");
+					$(this).find(".mejs-captions-selector").addClass("mejs-offscreen");
 				});
 
 			}
@@ -160,14 +160,14 @@
 				function () {
 					// chapters
 					if (player.hasChapters) {
-						player.chapters.css('visibility','visible');
+						player.chapters.removeClass('mejs-offscreen');
 						player.chapters.fadeIn(200).height(player.chapters.find('.mejs-chapter').outerHeight());
 					}
 				},
 				function () {
 					if (player.hasChapters && !media.paused) {
 						player.chapters.fadeOut(200, function() {
-							$(this).css('visibility','hidden');
+							$(this).addClass('mejs-offscreen');
 							$(this).css('display','block');
 						});
 					}
@@ -179,7 +179,7 @@
 
 			// check for autoplay
 			if (player.node.getAttribute('autoplay') !== null) {
-				player.chapters.css('visibility','hidden');
+				player.chapters.addClass('mejs-offscreen');
 			}
 		},
 
