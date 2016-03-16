@@ -577,7 +577,7 @@
 						t.container
 							.bind('mouseover', function () {
 								if (t.controlsEnabled) {
-									if (!t.options.alwaysShowControls ) {								
+									if (!t.options.alwaysShowControls ) {
                     					// do not hide controls if they're being hovered over
                     					if (t.controls.is(':hover')) {
 										  t.killControlsTimer('enter');
@@ -585,7 +585,7 @@
                     					} else {
 										  t.killControlsTimer('enter');
 										  t.showControls();
-										  t.startControlsTimer(2500);		
+										  t.startControlsTimer(2500);
                     					}
 									}
 								}
@@ -614,7 +614,7 @@
 							.bind('mouseleave', function () {
 								if (t.controlsEnabled) {
 									if (!t.media.paused && !t.options.alwaysShowControls) {
-										t.startControlsTimer(1000);								
+										t.startControlsTimer(1000);
 									}
 								}
 							});
@@ -1201,6 +1201,11 @@
 			t.container.remove();
 			t.globalUnbind();
 			delete t.node.player;
+		},
+		rebuildtracks: function(){
+			var t = this;
+			t.findTracks();
+			t.buildtracks(t, t.controls, t.layers, t.media);
 		}
 	};
 
