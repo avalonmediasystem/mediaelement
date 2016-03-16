@@ -20,6 +20,14 @@
 	$.extend(MediaElementPlayer.prototype, {
 
 		hasChapters: false,
+		cleartracks: function(player, controls, layers, media){
+			if(player) {
+				if(player.captions) player.captions.remove();
+				if(player.chapters) player.chapters.remove();
+				if(player.captionsText) player.captionsText.remove();
+				if(player.captionsButton) player.captionsButton.hide();
+			}
+		},
 
 		buildtracks: function(player, controls, layers, media) {
 			if (player.tracks.length == 0)
