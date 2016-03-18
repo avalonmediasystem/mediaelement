@@ -30,7 +30,7 @@
 				if(player.captions) player.captions.remove();
 				if(player.chapters) player.chapters.remove();
 				if(player.captionsText) player.captionsText.remove();
-				if(player.captionsButton) player.captionsButton.remove();
+				if(player.captionsButton) player.captionsButton.hide();
 			}
 		},
 		buildtracks: function(player, controls, layers, media) {
@@ -58,7 +58,7 @@
 			player.captionsText = player.captions.find('.mejs-captions-text');
 			player.captionsButton =
 					$('<div class="mejs-button mejs-captions-button">'+
-						'<button type="button" aria-controls="' + t.id + '" title="' + t.options.tracksText + '" aria-label="' + t.options.tracksText + '"></button>'+
+						'<button type="button" class="fa fa-cc" aria-controls="' + t.id + '" title="' + t.options.tracksText + '" aria-label="' + t.options.tracksText + '"></button>'+
 						'<div class="mejs-captions-selector">'+
 							'<ul>'+
 								'<li>'+
@@ -92,7 +92,7 @@
 			} else {
 				// hover or keyboard focus
 				player.captionsButton.on( 'mouseenter focusin', function() {
-					$(this).find('.mejs-captions-selector').removeClass('mejs-offscreen');
+					$(this).find('.mejs-captions-selector').css('visibility','visible');
 				})
 
 				// handle clicks to the language radio buttons
@@ -102,7 +102,7 @@
 				});
 
 				player.captionsButton.on( 'mouseleave focusout', function() {
-					$(this).find(".mejs-captions-selector").addClass("mejs-offscreen");
+					$(this).find('.mejs-captions-selector').css('visibility','hidden');
 				});
 
 			}
@@ -160,14 +160,14 @@
 				function () {
 					// chapters
 					if (player.hasChapters) {
-						player.chapters.removeClass('mejs-offscreen');
+						player.chapters.css('visibility','visible');
 						player.chapters.fadeIn(200).height(player.chapters.find('.mejs-chapter').outerHeight());
 					}
 				},
 				function () {
 					if (player.hasChapters && !media.paused) {
 						player.chapters.fadeOut(200, function() {
-							$(this).addClass('mejs-offscreen');
+							$(this).css('visibility','hidden');
 							$(this).css('display','block');
 						});
 					}
@@ -179,7 +179,7 @@
 
 			// check for autoplay
 			if (player.node.getAttribute('autoplay') !== null) {
-				player.chapters.addClass('mejs-offscreen');
+				player.chapters.css('visibility', 'hidden');
 			}
 		},
 
