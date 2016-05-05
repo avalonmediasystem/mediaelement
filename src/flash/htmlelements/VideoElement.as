@@ -63,6 +63,10 @@ package htmlelements
     private var _pseudoStreamingEnabled:Boolean = false;
     private var _pseudoStreamingStartQueryParam:String = "start";
 
+    // clip support
+    private var _clip_begin:Number = -1;
+    private var _clip_end:Number = -1;
+
     public function setReference(arg:Object):void {
       _parentReference = arg;
     }
@@ -94,7 +98,13 @@ package htmlelements
 
 
     public function duration():Number {
-      return _duration;
+      if (_clip_begin != -1 && _clip_end != -1) {
+        return _clip_end - _clip_begin;
+      } else if (_clip_begin != -1) {
+        return _duration - _clip_begin;
+      } else {
+        return _duration;
+      }
     }
 
     public function currentProgress():Number {
@@ -114,6 +124,11 @@ package htmlelements
         if (_pseudoStreamingEnabled) {
           currentTime += _seekOffset;
         }
+      }
+
+      //clip support
+      if (_clip_begin != -1) {
+        return currentTime - _clip_begin;
       }
       return currentTime;
     }
@@ -153,6 +168,12 @@ package htmlelements
 
       _bytesLoaded = _stream.bytesLoaded;
       _bytesTotal = _stream.bytesTotal;
+
+      //clip support
+      if ((_clip_end != -1) && (currentTime > duration)) {
+        stop();
+        return;       
+      }
 
       if (!_isPaused) {
         sendEvent(HtmlMediaEvent.TIMEUPDATE);
@@ -325,7 +346,8 @@ package htmlelements
         if (_streamer != "") {
           rtmpInfo.server = _streamer;
           rtmpInfo.stream = _currentUrl;
-
+          _clip_start = rtmpInfo.clip_start;
+          _clip_end = rtmpInfo.clip_end;
         }
         _connection.connect(rtmpInfo.server);
       } else {
@@ -366,6 +388,8 @@ package htmlelements
         //stream.bufferTime = 20;
         if (_isRTMP){
           var rtmpInfo:Object = parseRTMP(_currentUrl);
+          _clip_start = rtmpInfo.clip_start;
+          _clip_end = rtmpInfo.clip_end;
           _stream.play(rtmpInfo.stream, 0);
 	      } else {
           _stream.play(getCurrentUrl(0), 0);
@@ -396,10 +420,13 @@ package htmlelements
       if (_isRTMP) {
         var opts:NetStreamPlayOptions = new NetStreamPlayOptions();
         opts.oldStreamName = parseRTMP(_currentUrl).stream;
-        opts.streamName = parseRTMP(url).stream;
+        rtmpInfo = parseRTMP(url);
+        opts.streamName = rtmpInfo.stream;
         opts.transition = NetStreamPlayTransitions.SWITCH;
         _stream.play2(opts);
         _currentUrl = url;
+        _clip_start = rtmpInfo.clip_start;
+        _clip_end = rtmpInfo.clip_end;
       } else {
         _stream.play(getCurrentUrl(0), 0);
       }
@@ -464,6 +491,15 @@ package htmlelements
     public function setCurrentTime(pos:Number):void {
       if (_stream == null) {
         return;
+      }
+
+      // pos is relative to click start
+      if (_clip_start != -1) {
+        pos = pos + _clip_start;
+      }
+      // don't allow seeking past clip end
+      if ((_clip_end != _duration) && (pos > _clip_end)) {
+        pos = _clip_end;
       }
 
       // Calculate the position of the buffered video
@@ -559,13 +595,25 @@ package htmlelements
       var queryString:Array = url.match(/\?(.*)/);
       var rtmpInfo:Object = {
         server: null,
-        stream: null
+        stream: null,
+        clip_start: null,
+        clip_end: null
       };
 
       if (match) {
+        //TODO set clip_start and clip_end from mediafragment in url 
         rtmpInfo.server = match[1];
         if (queryString) {
-          rtmpInfo.server += "?" + queryString[1];
+          var mediafragment:Array = queryString.match(/t=(.*)&?/)
+          if (mediafragment) {
+            var timepoints:Array = mediafragment.match(/(\d*),(\d*)/)
+            rtmpInfo.start_time = timepoints[1];
+            if (timepoints[2]) {
+              rtmpInfo.end_time = timepoints[2];
+            }
+          }
+          var token:Array = queryString.match(/token=(.*)&?/)
+          rtmpInfo.server += "?token=" + token[1];
         }
         rtmpInfo.stream = match[2];
       }
@@ -574,7 +622,7 @@ package htmlelements
         rtmpInfo.stream = url.split("/").pop();
       }
 
-      Logger.debug("parseRTMP - server: " + rtmpInfo.server + " stream: " + rtmpInfo.stream);
+      Logger.debug("parseRTMP - server: " + rtmpInfo.server + " stream: " + rtmpInfo.stream + " clip_start: " + rtmpInfo.clip_start + " clip_end: " + rtmpInfo.clip_end);
 
       return rtmpInfo;
     }
