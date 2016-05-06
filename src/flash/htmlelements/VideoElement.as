@@ -603,16 +603,15 @@ package htmlelements
       if (match) {
         //TODO set clip_start and clip_end from mediafragment in url 
         rtmpInfo.server = match[1];
-        if (queryString) {
-          var mediafragment:Array = queryString.match(/t=(.*)&?/)
-          if (mediafragment) {
-            var timepoints:Array = mediafragment.match(/(\d*),(\d*)/)
-            rtmpInfo.start_time = timepoints[1];
-            if (timepoints[2]) {
-              rtmpInfo.end_time = timepoints[2];
+        if (queryString != null) {
+          var mediafragment:Array = queryString[1].match(/t=(\d*),(\d*)/)
+          if (mediafragment != null) {
+            rtmpInfo.clip_start = mediafragment[1];
+            if (mediafragment[2] != null) {
+              rtmpInfo.clip_end = mediafragment[2];
             }
           }
-          var token:Array = queryString.match(/token=(.*)&?/)
+          var token:Array = queryString[1].match(/token=(.*)&?/)
           rtmpInfo.server += "?token=" + token[1];
         }
         rtmpInfo.stream = match[2];
