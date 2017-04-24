@@ -431,8 +431,8 @@ mejs.HtmlMediaElementShim = {
 	createPlugin:function(playback, options, poster, autoplay, preload, controls) {
 		var 
 			htmlMediaElement = playback.htmlMediaElement,
-			width = 1,
-			height = 1,
+			width = 20,
+			height = 20,
 			pluginid = 'me_' + playback.method + '_' + (mejs.meIndex++),
 			pluginMediaElement = new mejs.PluginMediaElement(pluginid, playback.method, playback.url),
 			container = document.createElement('div'),
@@ -487,6 +487,7 @@ mejs.HtmlMediaElementShim = {
 		if (playback.isVideo) {
 				htmlMediaElement.parentNode.insertBefore(container, htmlMediaElement);
 		} else {
+				container.style = "left:-20px;top:-20px;";
 				document.body.insertBefore(container, document.body.childNodes[0]);
 		}
 
