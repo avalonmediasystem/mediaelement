@@ -1,5 +1,7 @@
 # `<video>` and `<audio>` made easy. 
 
+HTML5 <audio> or <video> player with Flash and Silverlight shims that mimics the HTML5 MediaElement API, enabling a consistent UI in all browsers.
+
 One file. Any browser. Same UI.
 
 * Author: John Dyer [http://j.hn/](http://j.hn/)
